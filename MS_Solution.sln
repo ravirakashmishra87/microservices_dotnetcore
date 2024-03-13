@@ -17,7 +17,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MS_Web", "MS_Web\MS_Web.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services.AuthAPI", "Services.AuthAPI\Services.AuthAPI.csproj", "{85294CF2-F1D0-4A8E-99FA-9F25EC80AC91}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services.ProductAPI", "Services.ProductAPI\Services.ProductAPI.csproj", "{347B73E8-B76D-4A86-980F-8264107E77C2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services.ProductAPI", "Services.ProductAPI\Services.ProductAPI.csproj", "{347B73E8-B76D-4A86-980F-8264107E77C2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services.ShoppingCartAPI", "Services.ShoppingCartAPI\Services.ShoppingCartAPI.csproj", "{D8D2CF33-5512-4E43-84D7-170F3484F2B7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +43,10 @@ Global
 		{347B73E8-B76D-4A86-980F-8264107E77C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{347B73E8-B76D-4A86-980F-8264107E77C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{347B73E8-B76D-4A86-980F-8264107E77C2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D8D2CF33-5512-4E43-84D7-170F3484F2B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D8D2CF33-5512-4E43-84D7-170F3484F2B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D8D2CF33-5512-4E43-84D7-170F3484F2B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D8D2CF33-5512-4E43-84D7-170F3484F2B7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -50,6 +56,7 @@ Global
 		{387E9F41-F39E-40E1-A33E-96101D44C659} = {E03E56B6-A468-466F-BEA5-8AB6A49E7ACB}
 		{85294CF2-F1D0-4A8E-99FA-9F25EC80AC91} = {1920F920-6CC6-445A-85A0-ACEAFB6AC821}
 		{347B73E8-B76D-4A86-980F-8264107E77C2} = {1920F920-6CC6-445A-85A0-ACEAFB6AC821}
+		{D8D2CF33-5512-4E43-84D7-170F3484F2B7} = {1920F920-6CC6-445A-85A0-ACEAFB6AC821}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B4508B01-3617-419C-89BE-44F66481359C}
