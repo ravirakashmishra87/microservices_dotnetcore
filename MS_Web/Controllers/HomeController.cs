@@ -1,3 +1,4 @@
+using IdentityModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MS_Web.Models;
@@ -13,10 +14,12 @@ namespace MS_Web.Controllers
     {
 
         private readonly IProductService _productService;
+        private readonly ICartService _cartService;
         
-        public HomeController(IProductService productService)
+        public HomeController(IProductService productService, ICartService cartService)
         {
             _productService = productService;
+            _cartService = cartService;
 
         }
 
@@ -44,6 +47,41 @@ namespace MS_Web.Controllers
                 return View(model);
             }
             return RedirectToAction(nameof(Index));
+        }
+
+        [Authorize]
+        [HttpPost]
+        [ActionName("details")]
+        public async Task<IActionResult> Details(ProductDto productDto)
+        {
+            CartDto cartDto = new CartDto()
+            {
+                CartHeader = new CartHeaderDto
+                {
+                    UserId = User.Claims.Where(u => u.Type == JwtClaimTypes.Subject)?.FirstOrDefault()?.Value
+                }
+            };
+
+            CartDetailsDto cartDetail = new CartDetailsDto()
+            {
+                Count = productDto.Count,
+                ProductId = productDto.ProductId,
+            };
+            List<CartDetailsDto> cartDetailsDtos = new() { cartDetail };
+            cartDto.CartDetails = cartDetailsDtos;
+
+            ResponseDto? response = await _cartService.UpsertCartAsync(cartDto);
+
+            if (response != null && response.IsSuccess)
+            {
+                TempData["Success"] = "Item added to cart";
+                return RedirectToAction(nameof(Index));
+            }
+            else
+            {
+                TempData["Error"] = response?.Message;
+            }
+            return View(productDto);
         }
 
         public IActionResult Privacy()

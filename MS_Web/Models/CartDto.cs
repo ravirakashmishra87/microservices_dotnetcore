@@ -1,4 +1,4 @@
-﻿namespace Services.ShoppingCartAPI.Models.DTO
+﻿namespace MS_Web.Models
 {
     public class CartDto
     {
