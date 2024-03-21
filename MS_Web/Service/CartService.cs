@@ -46,7 +46,16 @@ namespace MS_Web.Service
             });
         }
 
-       
+        public async Task<ResponseDto?> SendEmailAsync(CartDto cartDto)
+        {
+            return await _baseService.SendAsync(new RequestDto()
+            {
+                ApiType = SD.ApiType.POST,
+                Data = cartDto,
+                Url = $"{SD.CartAPIBase}api/cart/emailcartrequest"
+            });
+        }
+
         public async Task<ResponseDto?> UpsertCartAsync(CartDto cartDto)
         {
             return await _baseService.SendAsync(new RequestDto()

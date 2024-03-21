@@ -71,5 +71,21 @@ namespace MS_Web.Controllers
             }
             return View();
         }
+
+        [HttpPost]
+        public async Task<IActionResult> EmailCart(CartDto cartDto)
+        {
+            CartDto cart = await UserCartDetails();
+            cart.CartHeader.Email = User.Claims.Where(u=>u.Type == JwtRegisteredClaimNames.Email)?.FirstOrDefault()?.Value;
+
+            ResponseDto response = await _cartService.SendEmailAsync(cart);
+
+            if (response != null && response.IsSuccess)
+            {
+                TempData["Success"] = "Email will be processed and sent shortly";
+                return RedirectToAction(nameof(Index));
+            }
+            return View();
+        }
     }
 }

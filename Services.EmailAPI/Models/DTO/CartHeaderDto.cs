@@ -1,6 +1,4 @@
-﻿
-
-namespace Services.ShoppingCartAPI.Models.DTO
+﻿namespace Services.EmailAPI.Models.DTO
 {
     public class CartHeaderDto
     {
@@ -11,8 +9,8 @@ namespace Services.ShoppingCartAPI.Models.DTO
         public double Discount { get; set; }
         public double CartTotal { get; set; }
         public string? FirstName { get; set; }
-        public string? LastName { get; set; }
-        public string? Email { get; set; }
-        public string? Phone { get; set; }
+        public string? LastName { get; set;}
+        public string? Email { get; set;}
+        public string? Phone { get; set;}
     }
 }
