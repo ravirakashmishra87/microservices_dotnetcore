@@ -6,6 +6,8 @@ using Services.EmailAPI;
 using Services.EmailAPI.Data;
 using Services.EmailAPI.Extension;
 using Services.EmailAPI.Messaging;
+using Services.EmailAPI.Services;
+using System;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,6 +18,10 @@ builder.Services.AddDbContext<ApplicationDBContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+
+var optionBuilder = new DbContextOptionsBuilder<ApplicationDBContext>();
+optionBuilder.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+builder.Services.AddSingleton(new EmailService(optionBuilder.Options));
 
 builder.Services.AddSingleton<IAzureServiceBusConsumer, AzureServiceBusConsumer>();
 builder.Services.AddControllers();
