@@ -1,8 +1,6 @@
-﻿
+﻿using System.ComponentModel.DataAnnotations;
 
-using System.ComponentModel.DataAnnotations;
-
-namespace Services.ShoppingCartAPI.Models.DTO
+namespace Services.OrderAPI.Models.DTO
 {
     public class CartHeaderDto
     {
@@ -13,7 +11,7 @@ namespace Services.ShoppingCartAPI.Models.DTO
         public double Discount { get; set; }
         public double CartTotal { get; set; }
         public string? Name { get; set; }
-        public string? Email { get; set; }
-        public string? Phone { get; set; }
+        public string? Email { get; set;}
+        public string? Phone { get; set;}
     }
 }

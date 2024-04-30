@@ -1,13 +1,17 @@
 using AutoMapper;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.EntityFrameworkCore;
-using Services.CouponAPI;
-using Services.CouponAPI.Data;
-using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using Services.CouponAPI.Extensions;
+using Services.OrderAPI;
+using Services.OrderAPI.Data;
+using Services.OrderAPI.Utility;
+using Services.OrderAPI.Extensions;
+using Services.OrderAPI.Service.IService;
+using Services.OrderAPI.Service;
+using MS.MessageBus;
+
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,12 +24,19 @@ builder.Services.AddDbContext<ApplicationDBContext>(options =>
 IMapper mapper = MappingConfig.RegisterMaps().CreateMapper();
 builder.Services.AddSingleton(mapper);
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
+builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ApplicationDBContext, ApplicationDBContext>();
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<BackendApiAuthenticationHttpClientHandler>();
+builder.Services.AddScoped<IMessageBus, MessageBus>();
+
+builder.Services.AddHttpClient("product", u => u.BaseAddress = 
+new Uri(builder.Configuration["ServiceUrls:ProductApiUrl"])).AddHttpMessageHandler<BackendApiAuthenticationHttpClientHandler>();
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-
 builder.Services.AddSwaggerGen(options =>
 {
     options.AddSecurityDefinition(name: "Bearer", securityScheme: new OpenApiSecurityScheme
@@ -50,11 +61,11 @@ builder.Services.AddSwaggerGen(options =>
         }
     });
 });
+
 Stripe.StripeConfiguration.ApiKey = builder.Configuration.GetSection("Stripe:SecretKey").Get<string>();
 
 builder.AddAuthentication();
 builder.Services.AddAuthorization();
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -63,13 +74,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+applyMigration();
 app.UseHttpsRedirection();
 app.UseAuthentication();
+
 app.UseAuthorization();
 
 app.MapControllers();
-applyMigration();
 
 app.Run();
 
