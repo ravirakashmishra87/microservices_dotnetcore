@@ -34,9 +34,13 @@
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 <li><a class="dropdown-item" asp-controller="Coupon" asp-action="CouponIndex">Coupon</a></li>
                                 <li><a class="dropdown-item" asp-controller="Product" asp-action="Index">Product</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="#">Something else here</a></li>
+                                <li><hr class="dropdown-divider"></li>                                
                             </ul>
+                        <li class="nav-item">
+                            <a class="nav-link"asp-controller="Cart" asp-action="Index">
+                                &nbsp; <i class="bi bi-cart"></i>  &nbsp;
+                            </a>
+                        </li>
                         </li>
                     </ul>
                     <ul class="navbar-nav">
