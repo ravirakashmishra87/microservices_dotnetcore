@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Services.EmailAPI.Data;
+using Services.EmailAPI.Message;
 using Services.EmailAPI.Models;
 using Services.EmailAPI.Models.DTO;
 using System.Text;
@@ -50,6 +51,12 @@ namespace Services.EmailAPI.Services
 
                 return false;
             }
+        }
+
+        public async Task LogPlacedOrder(RewardMessage rewardDto)
+        {
+            string message = "New order placed. </br>Order Id : " + rewardDto.OrderId;
+            await LogAndSendEmail("developer.ravim@outlook.com",message);
         }
 
         public async Task<bool> RegisterUserEmailAndLog(string email)

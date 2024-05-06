@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using MS.MessageBus;
 using Services.OrderAPI.Data;
 using Services.OrderAPI.Models;
 using Services.OrderAPI.Models.DTO;
@@ -20,13 +21,17 @@ namespace Services.OrderAPI.Controllers
         private IMapper _Mapper;
         private readonly ApplicationDBContext _dbContext;
         private readonly IProductService _productService;
+        private readonly IMessageBus _messagebus;
+        private readonly IConfiguration _configuration;
 
-        public OrderAPIController(IMapper mapper, ApplicationDBContext dBContext, IProductService productService)
+        public OrderAPIController(IMapper mapper, ApplicationDBContext dBContext, IProductService productService, IConfiguration configuration, IMessageBus messageBus)
         {
             _dbContext = dBContext;
             _Mapper = mapper;
             _productService = productService;
             this._Response = new ResponseDto();
+            _configuration = configuration;
+            _messagebus = messageBus;
         }
 
         [Authorize]
@@ -144,6 +149,16 @@ namespace Services.OrderAPI.Controllers
                     objOrderMaster.Status = SD.Status_Approved;
                     _dbContext.SaveChanges();
 
+                    RewardDto rewardDto = new RewardDto
+                    {
+                        OrderId = objOrderMaster.OrderMasterId,
+                        RewardActivity = Convert.ToInt32(objOrderMaster.OrderTotal),
+                        UserId = objOrderMaster.UserId
+                    };
+
+                    string TopicName = _configuration.GetValue<string>("TopicOrQueueNames:OrderCreatedTopic");
+                    await _messagebus.PublishMessage(rewardDto, TopicName);
+                    
                     _Response.Result = _Mapper.Map<OrderMasterDto>(objOrderMaster);
                 }
                
