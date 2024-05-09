@@ -75,7 +75,7 @@ namespace MS_Web.Controllers
         public async Task<ActionResult> Confirmation(int orderId)
         {
             ResponseDto responseDto = await _orderService.ValidateStripeSessionAsync(orderId);
-            OrderMasterDto ordermasterdto = JsonConvert.DeserializeObject<OrderMasterDto>(Convert.ToString(responseDto.Result))
+            OrderMasterDto ordermasterdto = JsonConvert.DeserializeObject<OrderMasterDto>(Convert.ToString(responseDto.Result));
             if (ordermasterdto.Status == SD.Status_Approved)
             {
                 return View(orderId);

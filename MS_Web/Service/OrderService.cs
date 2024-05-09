@@ -37,6 +37,38 @@ namespace MS_Web.Service
             return response;
         }
 
+        public async Task<ResponseDto?> GetOrderAsync(int orderId)
+        {
+            var response = await _baseService.SendAsync(new RequestDto()
+            {
+                ApiType = SD.ApiType.GET,               
+                Url = $"{SD.OrderAPIBase}api/order/getorder/{orderId}"
+            });
+            return response;
+        }
+
+        public async Task<ResponseDto?> GetOrdersAsync(string? userId)
+        {
+            var response = await _baseService.SendAsync(new RequestDto()
+            {
+                ApiType = SD.ApiType.GET,
+                Url = $"{SD.OrderAPIBase}api/order/getorders/{userId}"
+            });
+            return response;
+        }
+
+        public async Task<ResponseDto?> UpdateOrderStatusAsync(int OrderId, string OrderStatus)
+        {
+            var response = await _baseService.SendAsync(new RequestDto()
+            {
+                ApiType = SD.ApiType.POST,
+
+                Data= OrderStatus,
+                Url = $"{SD.OrderAPIBase}api/order/updateorderstatus/{OrderId}"
+            });
+            return response;
+        }
+
         public async Task<ResponseDto?> ValidateStripeSessionAsync(int OrderMasterId)
         {
             var response = await _baseService.SendAsync(new RequestDto()

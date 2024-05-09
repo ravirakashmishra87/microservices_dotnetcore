@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using MS.MessageBus;
 using Services.OrderAPI.Data;
 using Services.OrderAPI.Models;
 using Services.OrderAPI.Models.DTO;
@@ -20,13 +22,17 @@ namespace Services.OrderAPI.Controllers
         private IMapper _Mapper;
         private readonly ApplicationDBContext _dbContext;
         private readonly IProductService _productService;
+        private readonly IMessageBus _messagebus;
+        private readonly IConfiguration _configuration;
 
-        public OrderAPIController(IMapper mapper, ApplicationDBContext dBContext, IProductService productService)
+        public OrderAPIController(IMapper mapper, ApplicationDBContext dBContext, IProductService productService, IConfiguration configuration, IMessageBus messageBus)
         {
             _dbContext = dBContext;
             _Mapper = mapper;
             _productService = productService;
             this._Response = new ResponseDto();
+            _configuration = configuration;
+            _messagebus = messageBus;
         }
 
         [Authorize]
@@ -58,6 +64,93 @@ namespace Services.OrderAPI.Controllers
             }
             return _Response;
 
+        }
+
+        [Authorize]
+        [HttpGet("getorders")]
+        public async Task<ResponseDto> GetOrders(string? userid = "")
+        {
+            try
+            {
+                IEnumerable<OrderMaster> objOrderMaster;
+                if (User.IsInRole(SD.RoleAdmin))
+                {
+                    objOrderMaster = await _dbContext.OrderMaster.Include(u => u.OrderDetails).
+                                        OrderByDescending(u => u.OrderMasterId).ToListAsync();
+                }
+                else
+                {
+                    objOrderMaster = await _dbContext.OrderMaster.Include(u => u.OrderDetails).
+                                        Where(u => u.UserId == userid).
+                                        OrderByDescending(u => u.UserId == userid).ToListAsync();
+                }
+                _Response.IsSuccess = true;
+                _Response.Result = _Mapper.Map<IEnumerable<OrderMasterDto>>(objOrderMaster);
+            }
+            catch (Exception ex)
+            {
+                _Response.IsSuccess = false;
+                _Response.Message = ex.Message;
+            }
+            return _Response;
+        }
+
+        [Authorize]
+        [HttpGet("getorder/{id:int}")]
+        public async Task<ResponseDto> GetOrder(int id)
+        {
+            try
+            {
+                OrderMaster ordermaster = await _dbContext.OrderMaster.
+                                            Include(u => u.OrderDetails).
+                                            FirstAsync(u => u.OrderMasterId == id);
+                _Response.Result = _Mapper.Map<OrderMasterDto>(ordermaster);
+                _Response.IsSuccess = true;
+            }
+            catch (Exception ex)
+            {
+                _Response.IsSuccess = false;
+                _Response.Message = ex.Message;
+            }
+            return _Response;
+        }
+
+        [Authorize]
+        [HttpPost("updateorderstatus/{id:int}")]
+        public async Task<ResponseDto> UpdateOrderStatus(int id, [FromBody] string NewOrderStatu)
+        {
+            try
+            {
+                OrderMaster objOrderMaster = await _dbContext.OrderMaster.FirstAsync(u => u.OrderMasterId == id);
+                objOrderMaster.Status = NewOrderStatu;
+
+                if (objOrderMaster != null)
+                {
+                    if (NewOrderStatu == SD.Status_Cancelled)
+                    {
+                        var options = new RefundCreateOptions
+                        {
+                            Reason = RefundReasons.RequestedByCustomer,
+                            PaymentIntent = objOrderMaster.PaymentIntentId,
+                        };
+                        var service = new RefundService();
+                        Refund refund = service.Create(options);
+
+                    }
+                    objOrderMaster.Status = NewOrderStatu;
+                    await _dbContext.SaveChangesAsync();
+                    _Response.Result = objOrderMaster;
+                    _Response.IsSuccess = true;
+                    _Response.Message = "Order Status updated";
+                }
+            }
+            catch (Exception ex)
+            {
+
+                _Response.IsSuccess = false;
+                _Response.Message = ex.Message;
+            }
+            return _Response;
         }
 
         [Authorize]
@@ -100,7 +193,7 @@ namespace Services.OrderAPI.Controllers
                     options.LineItems.Add(sessionLineItem);
                 }
 
-                if(stripeRequestDto.orderMasterDto.Discount >0)
+                if (stripeRequestDto.orderMasterDto.Discount > 0)
                 {
                     options.Discounts = discountObj;
                 }
@@ -130,23 +223,33 @@ namespace Services.OrderAPI.Controllers
         {
             try
             {
-                OrderMaster objOrderMaster = _dbContext.OrderMaster.First(o=>o.OrderMasterId==OrderMasterId);
-               
+                OrderMaster objOrderMaster = _dbContext.OrderMaster.First(o => o.OrderMasterId == OrderMasterId);
+
                 var service = new SessionService();
-                Session session =await service.GetAsync(objOrderMaster.StripeSessionId);
-               
+                Session session = await service.GetAsync(objOrderMaster.StripeSessionId);
+
                 var paymentIntentService = new PaymentIntentService();
-                PaymentIntent paymentIntent =await  paymentIntentService.GetAsync(session.PaymentIntentId);
-                if(paymentIntent != null && paymentIntent.Status =="succeeded") 
+                PaymentIntent paymentIntent = await paymentIntentService.GetAsync(session.PaymentIntentId);
+                if (paymentIntent != null && paymentIntent.Status == "succeeded")
                 {
                     //PAYMENT SUCCESSFUL
                     objOrderMaster.PaymentIntentId = paymentIntent.Id;
                     objOrderMaster.Status = SD.Status_Approved;
                     _dbContext.SaveChanges();
 
+                    RewardDto rewardDto = new RewardDto
+                    {
+                        OrderId = objOrderMaster.OrderMasterId,
+                        RewardActivity = Convert.ToInt32(objOrderMaster.OrderTotal),
+                        UserId = objOrderMaster.UserId
+                    };
+
+                    string TopicName = _configuration.GetValue<string>("TopicOrQueueNames:OrderCreatedTopic");
+                    await _messagebus.PublishMessage(rewardDto, TopicName);
+
                     _Response.Result = _Mapper.Map<OrderMasterDto>(objOrderMaster);
                 }
-               
+
             }
             catch (Exception ex)
             {
