@@ -81,7 +81,22 @@ namespace MS_Web.Controllers
 			return View(productDto);
 		}
 
-		[HttpPut]
+        public async Task<IActionResult> Edit(int Id)
+        {
+            ResponseDto? response = await _productService.GetProductByIdAsync(Id);
+
+            if (response != null && response.IsSuccess)
+            {
+                ProductDto? model = JsonConvert.DeserializeObject<ProductDto>(Convert.ToString(response.Result));
+                return View(model);
+            }
+            else
+            {
+                TempData["error"] = response?.Message;
+            }
+            return NotFound();
+        }
+        [HttpPost]
 		public async Task<IActionResult> Edit(ProductDto productDto)
 		{
 			ResponseDto? response = await _productService.UpdateProductAsync(productDto);

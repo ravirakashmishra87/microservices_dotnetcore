@@ -68,15 +68,44 @@ namespace Services.ProductAPI.Controllers
 
 		[HttpPost]
 		[Authorize(Roles = "ADMIN")]
-		public object post([FromBody] ProductDto ProductDto)
+		public object post(ProductDto ProductDto)
 		{
 			try
 			{
-				Product objProduct = _mapper.Map<Product>(ProductDto);
-				_dbContext.Add(objProduct);
+				Product product = _mapper.Map<Product>(ProductDto);
+				_dbContext.Add(product);
 				_dbContext.SaveChanges();
 
-				_responseDto.Result = _mapper.Map<ProductDto>(objProduct);
+                if (ProductDto.Image != null)
+                {
+
+                    string fileName = product.ProductId + Path.GetExtension(ProductDto.Image.FileName);
+                    string filePath = @"wwwroot\ProductImages\" + fileName;
+
+                    //I have added the if condition to remove the any image with same name if that exist in the folder by any change
+                    var directoryLocation = Path.Combine(Directory.GetCurrentDirectory(), filePath);
+                    FileInfo file = new FileInfo(directoryLocation);
+                    if (file.Exists)
+                    {
+                        file.Delete();
+                    }
+
+                    var filePathDirectory = Path.Combine(Directory.GetCurrentDirectory(), filePath);
+                    using (var fileStream = new FileStream(filePathDirectory, FileMode.Create))
+                    {
+                        ProductDto.Image.CopyTo(fileStream);
+                    }
+                    var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.Value}{HttpContext.Request.PathBase.Value}";
+                    product.ImageUrl = baseUrl + "/ProductImages/" + fileName;
+                    product.ImageLocalPath = filePath;
+                }
+                else
+                {
+                    product.ImageUrl = "https://placehold.co/600x400";
+                }
+                _dbContext.Products.Update(product);
+				_dbContext.SaveChanges();
+				_responseDto.Result = _mapper.Map<ProductDto>(product);
 				_responseDto.IsSuccess = true;
 				_responseDto.Message = $"Product created successfuly.";
 
@@ -93,15 +122,47 @@ namespace Services.ProductAPI.Controllers
 
 		[HttpPut]
 		[Authorize(Roles = "ADMIN")]
-		public object put([FromBody] ProductDto ProductDto)
+		public object put(ProductDto ProductDto)
 		{
 			try
 			{
-				Product objProduct = _mapper.Map<Product>(ProductDto);
-				_dbContext.Update(objProduct);
+				Product product = _mapper.Map<Product>(ProductDto);
+                if (ProductDto.Image != null)
+                {
+                    if (!string.IsNullOrEmpty(product.ImageLocalPath))
+                    {
+                        var filedirectory = Path.Combine(Directory.GetCurrentDirectory(), product.ImageLocalPath);
+                        FileInfo imagefile = new FileInfo(filedirectory);
+                        if (imagefile.Exists)
+                        {
+                            imagefile.Delete();
+                        }
+
+                    }
+                    string fileName = product.ProductId + Path.GetExtension(ProductDto.Image.FileName);
+                    string filePath = @"wwwroot\ProductImages\" + fileName;
+
+                    //I have added the if condition to remove the any image with same name if that exist in the folder by any change
+                    var directoryLocation = Path.Combine(Directory.GetCurrentDirectory(), filePath);
+                    FileInfo file = new FileInfo(directoryLocation);
+                    if (file.Exists)
+                    {
+                        file.Delete();
+                    }
+
+                    var filePathDirectory = Path.Combine(Directory.GetCurrentDirectory(), filePath);
+                    using (var fileStream = new FileStream(filePathDirectory, FileMode.Create))
+                    {
+                        ProductDto.Image.CopyTo(fileStream);
+                    }
+                    var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.Value}{HttpContext.Request.PathBase.Value}";
+                    product.ImageUrl = baseUrl + "/ProductImages/" + fileName;
+                    product.ImageLocalPath = filePath;
+                }
+                _dbContext.Update(product);
 				_dbContext.SaveChanges();
 
-				_responseDto.Result = _mapper.Map<ProductDto>(objProduct);
+				_responseDto.Result = _mapper.Map<ProductDto>(product);
 				_responseDto.IsSuccess = true;
 				_responseDto.Message = $"Product updated successfuly.";
 
@@ -124,6 +185,16 @@ namespace Services.ProductAPI.Controllers
 			try
 			{
 				Product objProduct = _dbContext.Products.First(u => u.ProductId == id);
+				if(!string.IsNullOrEmpty(objProduct.ImageLocalPath))
+				{
+					var filedirectory = Path.Combine(Directory.GetCurrentDirectory(),objProduct.ImageLocalPath);
+					FileInfo file = new FileInfo(filedirectory);
+					if(file.Exists)
+					{
+						file.Delete();
+					}
+
+				}
 				_dbContext.Remove(objProduct);
 				_dbContext.SaveChanges();
 
