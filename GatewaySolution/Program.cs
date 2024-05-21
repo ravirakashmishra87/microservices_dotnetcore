@@ -6,7 +6,14 @@ using GatewaySolution.Extensions;
 var builder = WebApplication.CreateBuilder(args);
 builder.AddAuthentication();
 
-builder.Configuration.AddJsonFile("Ocelot.json",optional:false,reloadOnChange:true);
+if (builder.Environment.EnvironmentName.ToString().ToLower() == "production")
+{
+    builder.Configuration.AddJsonFile("Ocelot.Production.json", optional: false, reloadOnChange: true);
+}
+else
+{
+    builder.Configuration.AddJsonFile("Ocelot.json", optional: false, reloadOnChange: true);
+}
 builder.Services.AddOcelot(builder.Configuration);
 
 
