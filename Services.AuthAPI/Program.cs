@@ -15,11 +15,11 @@ builder.Services.AddDbContext<ApplicationDBContext>(options =>
 });
 
 builder.Services.Configure<JWTOptions>(builder.Configuration.GetSection("APISettings:JWTOptions"));
-builder.Services.AddIdentity<ApplicationUser,IdentityRole>().AddEntityFrameworkStores<ApplicationDBContext>().AddDefaultTokenProviders();
-builder.Services.AddScoped<IAuthService,AuthService>();
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDBContext>().AddDefaultTokenProviders();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
-builder.Services.AddScoped<IJwtTokenGenerator,JwtTokenGenerator>();
-builder.Services.AddScoped<IMessageBus,MessageBus>();
+builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+builder.Services.AddScoped<IMessageBus, MessageBus>();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -28,12 +28,19 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+//if (app.Environment.IsDevelopment())
+//{
+//    app.UseSwagger();
+//    app.UseSwaggerUI();
+//}
 
+app.UseSwagger();
+app.UseSwaggerUI(
+    C =>
+    {
+        C.SwaggerEndpoint("/swagger/v1/swagger.json", "AUTH API PROD");
+        C.RoutePrefix = string.Empty;
+    });
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();

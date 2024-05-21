@@ -18,22 +18,23 @@ namespace MS_Web.Controllers
         {
             _orderService = orderService;
         }
+        [Authorize]
         public IActionResult Index()
         {
             return View();
         }
 
-        
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> orderDetails(int orderId)
         {
             OrderMasterDto ordermaster = new OrderMasterDto();
             string UserId = UserId = User.Claims.Where(u => u.Type == JwtRegisteredClaimNames.Sub)?.FirstOrDefault()?.Value;
            
-            ResponseDto response = _orderService.GetOrderAsync(orderId).GetAwaiter().GetResult();
+            ResponseDto response =await _orderService.GetOrderAsync(orderId);
             if (response != null && response.IsSuccess)
             {
-                ordermaster = JsonConvert.DeserializeObject<OrderMasterDto>(Convert.ToString(response.Result));
+                ordermaster =  JsonConvert.DeserializeObject<OrderMasterDto>(Convert.ToString(response.Result));
             }
             if(!User.IsInRole(SD.RoleAdmin) && UserId != ordermaster.UserId)
             {

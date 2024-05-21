@@ -27,7 +27,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services.EmailAPI", "Servic
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services.OrderAPI", "Services.OrderAPI\Services.OrderAPI.csproj", "{075FC9A1-883E-48D7-B5A5-9CA646D86268}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services.RewardsAPI", "Services.RewardsAPI\Services.RewardsAPI.csproj", "{E3F5FC5E-4D1F-414A-B8E0-65A4032971FC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services.RewardsAPI", "Services.RewardsAPI\Services.RewardsAPI.csproj", "{E3F5FC5E-4D1F-414A-B8E0-65A4032971FC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GatewaySolution", "GatewaySolution\GatewaySolution.csproj", "{65C1E49C-2589-43E8-9C88-D83316278EC9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -71,6 +73,10 @@ Global
 		{E3F5FC5E-4D1F-414A-B8E0-65A4032971FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E3F5FC5E-4D1F-414A-B8E0-65A4032971FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E3F5FC5E-4D1F-414A-B8E0-65A4032971FC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{65C1E49C-2589-43E8-9C88-D83316278EC9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65C1E49C-2589-43E8-9C88-D83316278EC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65C1E49C-2589-43E8-9C88-D83316278EC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65C1E49C-2589-43E8-9C88-D83316278EC9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -85,6 +91,7 @@ Global
 		{752BFC75-56AB-4628-B0B6-7D22DBFF3523} = {1920F920-6CC6-445A-85A0-ACEAFB6AC821}
 		{075FC9A1-883E-48D7-B5A5-9CA646D86268} = {1920F920-6CC6-445A-85A0-ACEAFB6AC821}
 		{E3F5FC5E-4D1F-414A-B8E0-65A4032971FC} = {1920F920-6CC6-445A-85A0-ACEAFB6AC821}
+		{65C1E49C-2589-43E8-9C88-D83316278EC9} = {04CB10E7-85FB-41F3-B86D-9A327B96DE65}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B4508B01-3617-419C-89BE-44F66481359C}

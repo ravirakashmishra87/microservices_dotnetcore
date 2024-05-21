@@ -4,6 +4,7 @@ using MS_Web.Models;
 using MS_Web.Service.IService;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Authorization;
+using System.Reflection;
 
 namespace MS_Web.Controllers
 {
@@ -49,8 +50,8 @@ namespace MS_Web.Controllers
 				}
 				else { TempData["Error"] = response?.Message; }
 			}
-			return RedirectToAction(nameof(Create));
-		}
+            return View(productDto);
+        }
 
 
 		public async Task<IActionResult> Delete(int Id)
@@ -62,8 +63,8 @@ namespace MS_Web.Controllers
 				return View(model);
 			}
 			else { TempData["Error"] = response?.Message; }
-			return RedirectToAction(nameof(Index));
-		}
+            return NotFound();
+        }
 
 		[HttpPost]
 		public async Task<IActionResult> Delete(ProductDto productDto)
@@ -81,18 +82,36 @@ namespace MS_Web.Controllers
 			return View(productDto);
 		}
 
-		[HttpPut]
+        public async Task<IActionResult> Edit(int Id)
+        {
+            ResponseDto? response = await _productService.GetProductByIdAsync(Id);
+
+            if (response != null && response.IsSuccess)
+            {
+                ProductDto? model = JsonConvert.DeserializeObject<ProductDto>(Convert.ToString(response.Result));
+                return View(model);
+            }
+            else
+            {
+                TempData["error"] = response?.Message;
+            }
+            return NotFound();
+        }
+        [HttpPost]
 		public async Task<IActionResult> Edit(ProductDto productDto)
 		{
-			ResponseDto? response = await _productService.UpdateProductAsync(productDto);
-			if (response != null && response.IsSuccess)
+			if (ModelState.IsValid)
 			{
-				TempData["Success"] = "product details updated successfully";
-				return RedirectToAction(nameof(Index));
-			}
-			else
-			{
-				TempData["Error"] = response?.Message;
+				ResponseDto? response = await _productService.UpdateProductAsync(productDto);
+				if (response != null && response.IsSuccess)
+				{
+					TempData["Success"] = "product details updated successfully";
+					return RedirectToAction(nameof(Index));
+				}
+				else
+				{
+					TempData["Error"] = response?.Message;
+				}
 			}
 			return View(productDto);
 		}
